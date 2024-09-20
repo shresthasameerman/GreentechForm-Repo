@@ -1,5 +1,5 @@
 <div class="com-contact__form contact-form">
-    <form id="contact-form" action="<?php echo \Joomla\CMS\Router\Route::_('index.php'); ?>" method="post" class="form-validate form-horizontal well">
+    <form id="contact-form" action="<?php echo \Joomla\CMS\Router\Route::_('index.php'); ?>" method="post" class="form-validate form-horizontal well" onsubmit="showSuccessMessage()">
         <?php foreach ($this->form->getFieldsets() as $fieldset) : ?>
             <?php if ($fieldset->name === 'captcha' && $this->captchaEnabled) : ?>
                 <?php continue; ?>
@@ -24,7 +24,8 @@
         <?php if ($this->captchaEnabled) : ?>
             <?php echo $this->form->renderFieldset('captcha'); ?>
         <?php endif; ?>
-<br><br>
+        <br><br>
+
         <!-- Submit button -->
         <div class="control-group">
             <div class="controls">
@@ -41,3 +42,10 @@
 
 <!-- Load the Google reCAPTCHA API -->
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+<!-- JavaScript for Success Message -->
+<script>
+    function showSuccessMessage() {
+        alert('Your form has been successfully submitted!');
+    }
+</script>
