@@ -18,11 +18,6 @@ use Joomla\CMS\Uri\Uri;
 $app = Factory::getApplication();
 $this->setHtml5(true);
 
-/**
- * Load the framework bootstrap file for enabling the HelixUltimate\Framework namespacing.
- *
- * @since	2.0.0
- */
 $bootstrap_path = JPATH_PLUGINS . '/system/helixultimate/bootstrap.php';
 
 if (file_exists($bootstrap_path))
@@ -34,23 +29,14 @@ else
 	die('Install and activate <a target="_blank" rel="noopener noreferrer" href="https://www.joomshaper.com/helix">Helix Ultimate Framework</a>.');
 }
 
-/**
- * Get the theme instance from Helix framework.
- *
- * @var		$theme		The theme object from the class HelixUltimate.
- * @since	1.0.0
- */
 $theme = new HelixUltimate;
 $template = Helper::loadTemplateData();
 $this->params = $template->params;
 
-
-/** Load needed data for javascript */
 Helper::flushSettingsDataToJs();
 
 $requestFromIframe = $app->input->get('helixMode', '') === 'edit';
 
-// Coming Soon
 if (!$requestFromIframe) 
 {
 	if (!\is_null($this->params->get('comingsoon', null)))
@@ -61,12 +47,9 @@ if (!$requestFromIframe)
 }
 
 $scssVars = $theme->getSCSSVariables();
-
 $boxedLayout = $this->params->get('boxed_layout');
-
 $containerMaxWidth = $this->params->get('container_max_width');
 
-// Body Background Image
 if ($boxedLayout && $this->params->get('body_bg_image'))
 {
 	$bg_image = $this->params->get('body_bg_image');
@@ -79,7 +62,6 @@ if ($boxedLayout && $this->params->get('body_bg_image'))
 	$this->addStyledeclaration($body_style);
 }
 
-// Custom CSS
 if ($custom_css = $this->params->get('custom_css'))
 {
 	$this->addStyledeclaration($custom_css);
@@ -98,7 +80,6 @@ if($app->input->get('view') === 'article' && $this->params->get('reading_time_pr
 	$this->addStyledeclaration($progress_style);
 }
 
-// Custom JS
 if ($custom_js = $this->params->get('custom_js', null))
 {
 	$this->addScriptDeclaration($custom_js);
@@ -112,14 +93,10 @@ if ($custom_js = $this->params->get('custom_js', null))
 
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<?php
-
 		$theme->head();
 		$theme->loadFontAwesome();
 		$theme->add_js('main.js');
 
-		/**
-		 * Add custom.js for user
-		 */
 		if (file_exists(JPATH_THEMES . '/' . $template->template . '/js/custom.js'))
 		{
 			$theme->add_js('custom.js');
@@ -133,11 +110,9 @@ if ($custom_js = $this->params->get('custom_js', null))
 		}
 
 		$theme->add_scss('presets', $scssVars, 'presets/' . $scssVars['preset']);
-
 		$theme->add_scss('custom', $scssVars, 'custom-compiled');
 		$theme->add_css('custom.css');
 
-		//Before Head
 		if ($before_head = $this->params->get('before_head'))
 		{
 			echo $before_head . "\n";
@@ -146,12 +121,20 @@ if ($custom_js = $this->params->get('custom_js', null))
 		<?php if (!empty($containerMaxWidth)) :?>
 			<style>.container, .sppb-row-container { max-width: <?php echo $containerMaxWidth . 'px'; ?>; }</style>
 		<?php endif; ?>
-		<style>
-        /* Custom padding for the contact page */
-        .view-contact #sp-main-body {
-            padding: 10px 0 !important; /* Adjust the padding as needed */
-        }
-    </style>
+	<style>
+    /* Custom padding for the contact page */
+    .view-contact #sp-main-body {
+        padding: 10px 0 !important;
+    }
+
+    /* Adjust margin-bottom for form-text fields */
+    fieldset.m-0 .form-group .control-group {
+    margin-bottom: 0.1rem;
+}
+
+</style>
+
+
 	</head>
 	<body class="<?php echo $theme->bodyClass(); ?>">
 
@@ -175,8 +158,6 @@ if ($custom_js = $this->params->get('custom_js', null))
 		<!-- Off Canvas Menu -->
 		<div class="offcanvas-overlay"></div>
 		<!-- Rendering the offcanvas style -->
-		<!-- If canvas style selected then render the style -->
-		<!-- otherwise (for old templates) attach the offcanvas module position -->
 		<?php if (!empty($this->params->get('offcanvas_style', '1-LeftAlign'))): ?>
 			<?php echo $theme->getOffcanvasStyle(); ?>
 		<?php else : ?>
@@ -193,7 +174,6 @@ if ($custom_js = $this->params->get('custom_js', null))
 				</div>
 			</div>
 		<?php endif; ?>
-		
 
 		<?php $theme->after_body(); ?>
 
