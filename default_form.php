@@ -24,11 +24,11 @@
         <?php if ($this->captchaEnabled) : ?>
             <?php echo $this->form->renderFieldset('captcha'); ?>
         <?php endif; ?>
-
+<br><br>
         <!-- Submit button -->
         <div class="control-group">
             <div class="controls">
-                <button class="btn btn-primary validate" type="submit">Send an Email</button>
+                <button class="btn btn-primary validate" type="submit">Send Mail</button>
                 <input type="hidden" name="option" value="com_contact">
                 <input type="hidden" name="task" value="contact.submit">
                 <input type="hidden" name="return" value="<?php echo $this->return_page; ?>">
