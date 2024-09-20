@@ -11,15 +11,20 @@
                         <?php if ($field->name === 'contact_phone') : ?>
                             <?php continue; ?>
                         <?php endif; ?>
-                        <?php echo $field->renderField(); ?>
+                        <?php echo $field->renderField(array('placeholder' => $field->getAttribute('placeholder'))); ?>
                     <?php endforeach; ?>
                 </fieldset>
             <?php endif; ?>
         <?php endforeach; ?>
+
+        <!-- Google reCAPTCHA v2 Checkbox -->
+        <div class="g-recaptcha" data-sitekey="6Lf06kkqAAAAAEOYkgYpUYyrD_I2zQCyuKPTdeQ8"></div>
+
         <!-- Captcha fieldset, if enabled -->
         <?php if ($this->captchaEnabled) : ?>
             <?php echo $this->form->renderFieldset('captcha'); ?>
         <?php endif; ?>
+
         <!-- Submit button -->
         <div class="control-group">
             <div class="controls">
@@ -33,3 +38,6 @@
         </div>
     </form>
 </div>
+
+<!-- Load the Google reCAPTCHA API -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
