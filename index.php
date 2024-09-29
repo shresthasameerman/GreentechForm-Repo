@@ -1,190 +1,227 @@
 <?php
-/**
- * @package Helix_Ultimate_Framework
- * @author JoomShaper <support@joomshaper.com>
- * Copyright (c) 2010 - 2021 JoomShaper
- * @license http://www.gnu.org/licenses/gpl-2.0.html GNU/GPLv2 or Later
- */
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $mobile = $_POST['mobile'];
+    $companyName = $_POST['company_name'];
+    $companyPhone = $_POST['company_phone'];
+    $quantity = $_POST['quantity'];
+    $quantityNumber = isset($_POST['quantity_number']) ? $_POST['quantity_number'] : null;
+    $messageContent = $_POST['message'];
+    $interestedProduct = $_POST['interested_product'];
 
-defined('_JEXEC') or die('Restricted Direct Access!');
+    // Verify reCAPTCHA
+    $recaptchaSecret = "6LfpiUYqAAAAALdw9fSqP07ghNUpICHwsYBVj9qV"; // Replace with your Secret Key
+    $recaptchaResponse = $_POST['g-recaptcha-response'];
+    $verifyResponse = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$recaptchaSecret&response=$recaptchaResponse");
+    $responseData = json_decode($verifyResponse);
 
-use HelixUltimate\Framework\Core\HelixUltimate;
-use HelixUltimate\Framework\Platform\Helper;
-use Joomla\CMS\Factory;
-use Joomla\CMS\Language\Text;
-use Joomla\CMS\Router\Route;
-use Joomla\CMS\Uri\Uri;
+    // Check if the quantity number is valid if the quantity is "25+"
+    if ($quantity == "25+" && (!isset($quantityNumber) || $quantityNumber < 26)) {
+        echo "<script>alert('Please enter a number of products that is at least 26.');</script>";
+    } elseif ($responseData->success) {
+        $to = "shresthasameerman@gmail.com"; // Change to your email
+        $subject = "Product Inquiry from $name";
+        $message = "Name: $name\nEmail: $email\nMobile: $mobile\nCompany Name: $companyName\nCompany Phone: $companyPhone\nQuantity: $quantity";
 
-$app = Factory::getApplication();
-$this->setHtml5(true);
+        // Append quantity number if "25+" is selected
+        if ($quantity == "25+" && $quantityNumber) {
+            $message .= "\nNumber of Products: $quantityNumber";
+        }
 
-$bootstrap_path = JPATH_PLUGINS . '/system/helixultimate/bootstrap.php';
+        $message .= "\nMessage: $messageContent\nInterested in Product: $interestedProduct";
 
-if (file_exists($bootstrap_path))
-{
-	require_once $bootstrap_path;
-}
-else
-{
-	die('Install and activate <a target="_blank" rel="noopener noreferrer" href="https://www.joomshaper.com/helix">Helix Ultimate Framework</a>.');
-}
+        $headers = "From: $email";
 
-$theme = new HelixUltimate;
-$template = Helper::loadTemplateData();
-$this->params = $template->params;
-
-Helper::flushSettingsDataToJs();
-
-$requestFromIframe = $app->input->get('helixMode', '') === 'edit';
-
-if (!$requestFromIframe) 
-{
-	if (!\is_null($this->params->get('comingsoon', null)))
-	{
-		header("Location: " . Route::_(Uri::root(true) . "/index.php?templateStyle={$template->id}&tmpl=comingsoon", false));
-		exit();
-	}
-}
-
-$scssVars = $theme->getSCSSVariables();
-$boxedLayout = $this->params->get('boxed_layout');
-$containerMaxWidth = $this->params->get('container_max_width');
-
-if ($boxedLayout && $this->params->get('body_bg_image'))
-{
-	$bg_image = $this->params->get('body_bg_image');
-	$body_style = 'background-image: url(' . Uri::base(true) . '/' . $bg_image . ');';
-	$body_style .= 'background-repeat: ' . $this->params->get('body_bg_repeat') . ';';
-	$body_style .= 'background-size: ' . $this->params->get('body_bg_size') . ';';
-	$body_style .= 'background-attachment: ' . $this->params->get('body_bg_attachment') . ';';
-	$body_style .= 'background-position: ' . $this->params->get('body_bg_position') . ';';
-	$body_style = 'body.site {' . $body_style . '}';
-	$this->addStyledeclaration($body_style);
-}
-
-if ($custom_css = $this->params->get('custom_css'))
-{
-	$this->addStyledeclaration($custom_css);
-}
-
-$progress_bar_position = $this->params->get('reading_timeline_position');
-
-if($app->input->get('view') === 'article' && $this->params->get('reading_time_progress', 0))
-{
-	$progress_style = 'position:fixed;';
-	$progress_style .= 'z-index:9999;';
-	$progress_style .= 'height:'.$this->params->get('reading_timeline_height').';';
-	$progress_style .= 'background-color:'.$this->params->get('reading_timeline_bg').';';
-	$progress_style .= $progress_bar_position == 'top' ? 'top:0;' : 'bottom:0;';
-	$progress_style = '.sp-reading-progress-bar { '.$progress_style.' }';
-	$this->addStyledeclaration($progress_style);
-}
-
-if ($custom_js = $this->params->get('custom_js', null))
-{
-	$this->addScriptDeclaration($custom_js);
+        if (mail($to, $subject, $message, $headers)) {
+            echo "<script>alert('Mail sent successfully!');</script>";
+        } else {
+            echo "<script>alert('Mail not sent. Please try again later.');</script>";
+        }
+    } else {
+        echo "<script>alert('reCAPTCHA verification failed. Please try again.');</script>";
+    }
 }
 ?>
 
-<!doctype html>
-<html lang="<?php echo $this->language; ?>" dir="<?php echo $this->direction; ?>">
-	<head>
-		<?php echo $theme->googleAnalytics(); ?>
-
-		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<?php
-		$theme->head();
-		$theme->loadFontAwesome();
-		$theme->add_js('main.js');
-
-		if (file_exists(JPATH_THEMES . '/' . $template->template . '/js/custom.js'))
-		{
-			$theme->add_js('custom.js');
-		}
-
-		$theme->add_scss('master', $scssVars, 'template');
-
-		if($this->direction === 'rtl')
-		{
-			$theme->add_scss('rtl', $scssVars, 'rtl');
-		}
-
-		$theme->add_scss('presets', $scssVars, 'presets/' . $scssVars['preset']);
-		$theme->add_scss('custom', $scssVars, 'custom-compiled');
-		$theme->add_css('custom.css');
-
-		if ($before_head = $this->params->get('before_head'))
-		{
-			echo $before_head . "\n";
-		}
-		?>
-		<?php if (!empty($containerMaxWidth)) :?>
-			<style>.container, .sppb-row-container { max-width: <?php echo $containerMaxWidth . 'px'; ?>; }</style>
-		<?php endif; ?>
-	<style>
-    /* Custom padding for the contact page */
-    .view-contact #sp-main-body {
-        padding: 10px 0 !important;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Inquiry Form</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
     }
-
-    /* Adjust margin-bottom for form-text fields */
-    fieldset.m-0 .form-group .control-group {
-    margin-bottom: 0.1rem;
-}
-
+     .form-container {
+        max-width: 600px;
+        margin: 10px auto; /* Decrease the margin above the form */
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        color: green;
+        text-align: center;
+        margin-bottom: 5px;
+        margin-top: 2px;
+    }
+    label {
+        margin-top: 10px;
+        font-weight: bold;
+    }
+    input[type="text"], 
+    input[type="email"], 
+    input[type="number"], 
+    select, 
+    textarea {
+        width: calc(100% - 22px);
+        padding: 5px;
+        margin-bottom: 13px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+        transition: border 0.3s;
+    }
+    input[type="text"]:focus, 
+    input[type="email"]:focus, 
+    input[type="number"]:focus, 
+    select:focus, 
+    textarea:focus {
+        border: 1px solid green;
+        outline: none;
+    }
+    .breadcrumb-container {
+        background-color: green;
+        padding: 15px 0;
+        width: 100%;
+    }
+    .breadcrumb {
+        list-style: none;
+        display: flex;
+        padding: 0;
+        justify-content: flex-start;
+        margin-left: 20px;
+    }
+    .breadcrumb li {
+        margin-right: 10px;
+        color: white;
+    }
+    .breadcrumb li:not(:last-child)::after {
+        content: ">";
+        margin-left: 10px;
+    }
+    .breadcrumb a {
+        text-decoration: none;
+        color: white;
+    }
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+    input[type="submit"] {
+        background-color: green;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 5px;
+        transition: background-color 0.3s, transform 0.2s;
+        margin-top: 20px; /* Increase the gap above the submit button */
+    }
+    input[type="submit"]:hover {
+        background-color: darkgreen;
+        transform: scale(1.05);
+    }
+    .required {
+        color: red;
+    }
+    textarea {
+        resize: vertical;
+    }
 </style>
 
+    <script>
+        function toggleQuantityInput() {
+            var quantitySelect = document.getElementById("quantity");
+            var quantityNumberDiv = document.getElementById("quantity-number-div");
 
-	</head>
-	<body class="<?php echo $theme->bodyClass(); ?>">
+            if (quantitySelect.value === "25+") {
+                quantityNumberDiv.style.display = "block";
+            } else {
+                quantityNumberDiv.style.display = "none";
+            }
+        }
+    </script>
+</head>
+<body>
 
-		<?php if ($this->params->get('after_body', '')): ?>
-			<?php echo $this->params->get('after_body') . "\n"; ?>
-		<?php endif ?>
+<!-- Green rectangle around breadcrumb -->
+<div class="breadcrumb-container">
+    <ul class="breadcrumb">
+        <li><a href="/home">Home</a></li>
+        <li><a href="https://mana.com.np/products/dr-web-anti-virus/dr-web-busniess-edition">Products</a></li>
+        <li>Product Inquiry</li>
+    </ul>
+</div>
 
-		<?php if($this->params->get('preloader')) : ?>
-			<div class="sp-pre-loader">
-				<?php echo $theme->getPreloader($this->params->get('loader_type', '')); ?>
-			</div>
-		<?php endif; ?>
+<div class="form-container">
+    <h1>Dr.Web Enterprise Suite Inquiry Form</h1> <!-- Title in green -->
 
-		<div class="body-wrapper">
-			<div class="body-innerwrapper">
-				<?php echo $theme->getHeaderStyle(); ?>
-				<?php $theme->render_layout(); ?>
-			</div>
-		</div>
+    <form action="" method="POST">
+        <label for="name">Name: <span class="required">*</span></label>
+        <input type="text" name="name" placeholder="John Doe" required>
 
-		<!-- Off Canvas Menu -->
-		<div class="offcanvas-overlay"></div>
-		<!-- Rendering the offcanvas style -->
-		<?php if (!empty($this->params->get('offcanvas_style', '1-LeftAlign'))): ?>
-			<?php echo $theme->getOffcanvasStyle(); ?>
-		<?php else : ?>
-			<div class="offcanvas-menu">
-				<a href="#" class="close-offcanvas" aria-label="<?php echo Text::_('HELIX_ULTIMATE_CLOSE_OFFCANVAS_ARIA_LABEL'); ?>"><span class="fas fa-times" aria-hidden="true"></span></a>
-				<div class="offcanvas-inner">
-					<?php if ($this->countModules('offcanvas')) : ?>
-						<jdoc:include type="modules" name="offcanvas" style="sp_xhtml" />
-					<?php else: ?>
-						<p class="alert alert-warning">
-							<?php echo Text::_('HELIX_ULTIMATE_NO_MODULE_OFFCANVAS'); ?>
-						</p>
-					<?php endif; ?>
-				</div>
-			</div>
-		<?php endif; ?>
+        <label for="email">Email: <span class="required">*</span></label>
+        <input type="email" name="email" placeholder="johndoe@example.com" required>
 
-		<?php $theme->after_body(); ?>
+        <label for="mobile">Mobile Number: <span class="required">*</span></label>
+        <input type="text" name="mobile" placeholder="+977 98XXXXXXXX" required>
 
-		<jdoc:include type="modules" name="debug" style="none" />
+        <label for="company_name">Company Name:</label>
+        <input type="text" name="company_name" placeholder="ABC Corp.">
 
-		<!-- Go to top -->
-		<?php if ($this->params->get('goto_top', 0)) : ?>
-			<a href="#" class="sp-scroll-up" aria-label="<?php echo Text::_('HELIX_ULTIMATE_SCROLL_UP_ARIA_LABEL'); ?>"><span class="fas fa-angle-up" aria-hidden="true"></span></a>
-		<?php endif; ?>
-		<?php if( $app->input->get('view') === 'article' && $this->params->get('reading_time_progress', 0) ): ?>
-			<div data-position="<?php echo $progress_bar_position; ?>" class="sp-reading-progress-bar"></div>
-		<?php endif; ?>
-	</body>
+        <label for="company_phone">Company Phone Number:</label>
+        <input type="text" name="company_phone" placeholder="+977 1 XXXXXX">
+
+        <label for="interested_product">Interested in Product:</label><br>
+        <select name="interested_product" required>
+            <option value="">-Select Product-</option>
+            <option value="Dr.Web Desktop Security Suite">Dr.Web Desktop Security Suite</option>
+            <option value="Dr.Web Server Security Suite">Dr.Web Server Security Suite</option>
+            <option value="Dr.Web Mail Security Suite">Dr.Web Mail Security Suite</option>
+            <option value="Dr.Web Mobile Security Suite">Dr.Web Mobile Security Suite</option>
+            <option value="Dr.Web Gateway Security Suite">Dr.Web Gateway Security Suite</option>
+        </select><br>
+
+        <label for="quantity">Quantity of Products: <span class="required">*</span></label>
+        <select name="quantity" id="quantity" required onchange="toggleQuantityInput()">
+            <option value="">Select Quantity</option>
+            <option value="1-5">1-5</option>
+            <option value="5-10">5-10</option>
+            <option value="10-15">10-15</option>
+            <option value="15-20">15-20</option>
+            <option value="25+">25+</option>
+        </select><br>
+
+        <div id="quantity-number-div" style="display:none;">
+            <label for="quantity_number">Number of Products:</label>
+            <input type="number" name="quantity_number" min="1" placeholder="Enter number of products"><br>
+        </div>
+
+        <label for="message">Message:</label><br>
+        <textarea name="message" rows="4" placeholder="Enter your message here..."></textarea><br>
+
+        <div class="g-recaptcha" data-sitekey="6LfpiUYqAAAAAA0y04UgGC8zgVHjdUqlwvwSggtE"></div>
+        <input type="submit" value="Send Inquiry">
+    </form>
+</div>
+
+</body>
 </html>
