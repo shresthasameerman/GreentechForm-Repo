@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $interestedProduct = $_POST['interested_product'];
 
     // Verify reCAPTCHA
-    $recaptchaSecret = "6LfpiUYqAAAAALdw9fSqP07ghNUpICHwsYBVj9qV"; // Replace with your Secret Key
+    $recaptchaSecret = ""; // Replace with your Secret Key
     $recaptchaResponse = $_POST['g-recaptcha-response'];
     $verifyResponse = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$recaptchaSecret&response=$recaptchaResponse");
     $responseData = json_decode($verifyResponse);
@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($quantity == "25+" && (!isset($quantityNumber) || $quantityNumber < 26)) {
         echo "<script>alert('Please enter a number of products that is at least 26.');</script>";
     } elseif ($responseData->success) {
-        $to = "shresthasameerman@gmail.com"; // Change to your email
+        $to = "xyz@example.com"; // Change to your email
         $subject = "Product Inquiry from $name";
         $message = "Name: $name\nEmail: $email\nMobile: $mobile\nCompany Name: $companyName\nCompany Phone: $companyPhone\nQuantity: $quantity";
 
@@ -218,7 +218,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label for="message">Message:</label><br>
         <textarea name="message" rows="4" placeholder="Enter your message here..."></textarea><br>
 
-        <div class="g-recaptcha" data-sitekey="6LfpiUYqAAAAAA0y04UgGC8zgVHjdUqlwvwSggtE"></div>
+        <div class="g-recaptcha" data-sitekey=""></div>
         <input type="submit" value="Send Inquiry">
     </form>
 </div>
