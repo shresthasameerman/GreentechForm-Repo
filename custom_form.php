@@ -16,17 +16,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $verifyResponse = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$recaptchaSecret&response=$recaptchaResponse");
     $responseData = json_decode($verifyResponse);
 
-    // Check if the quantity number is valid if the quantity is "25+"
-    if ($quantity == "25+" && (!isset($quantityNumber) || $quantityNumber < 26)) {
-        echo "<script>alert('Please enter a number of products that is at least 26.');</script>";
+    // Check if the quantity number is valid if the quantity is "250+"
+    if ($quantity == "250+" && (!isset($quantityNumber) || $quantityNumber < 251)) {
+        echo "<script>alert('Please enter a number of products that is at least 251.');</script>";
     } elseif ($responseData->success) {
         $to = "xyz@example.com"; // Change to your email
         $subject = "Product Inquiry from $name";
         $message = "Name: $name\nEmail: $email\nMobile: $mobile\nCompany Name: $companyName\nCompany Phone: $companyPhone\nQuantity: $quantity";
 
-        // Append quantity number if "25+" is selected
-        if ($quantity == "25+" && $quantityNumber) {
-            $message .= "\nNumber of Products: $quantityNumber";
+        // Append quantity number if "250+" is selected
+        if ($quantity == "250+" && $quantityNumber) {
+            $message .= "\nMinimum Number of Products: $quantityNumber";
         }
 
         $message .= "\nMessage: $messageContent\nInterested in Product: $interestedProduct";
@@ -58,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         margin: 0;
         padding: 0;
     }
-     .form-container {
+    .form-container {
         max-width: 600px;
         margin: 10px auto; /* Decrease the margin above the form */
         background: white;
@@ -145,14 +145,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     textarea {
         resize: vertical;
     }
-</style>
+    </style>
 
     <script>
         function toggleQuantityInput() {
             var quantitySelect = document.getElementById("quantity");
             var quantityNumberDiv = document.getElementById("quantity-number-div");
 
-            if (quantitySelect.value === "25+") {
+            if (quantitySelect.value === "250+") {
                 quantityNumberDiv.style.display = "block";
             } else {
                 quantityNumberDiv.style.display = "none";
@@ -166,7 +166,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <div class="breadcrumb-container">
     <ul class="breadcrumb">
         <li><a href="/home">Home</a></li>
-        <li><a href="https://mana.com.np/products/dr-web-anti-virus/dr-web-busniess-edition">Products</a></li>
+        <li><a href="https://mana.com.np/products/dr-web-anti-virus/dr-web-business-edition">Products</a></li>
         <li>Product Inquiry</li>
     </ul>
 </div>
@@ -203,22 +203,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label for="quantity">Quantity of Products: <span class="required">*</span></label>
         <select name="quantity" id="quantity" required onchange="toggleQuantityInput()">
             <option value="">Select Quantity</option>
-            <option value="1-5">1-5</option>
-            <option value="5-10">5-10</option>
-            <option value="10-15">10-15</option>
-            <option value="15-20">15-20</option>
-            <option value="25+">25+</option>
+            <option value="5-9">5-9</option>
+            <option value="10-19">10-19</option>
+            <option value="20-29">20-29</option>
+            <option value="30-39">30-39</option>
+            <option value="50-99">50-99</option>
+            <option value="100-149">100-149</option>
+            <option value="150-250">150-250</option>
+            <option value="250+">250+</option>
         </select><br>
 
         <div id="quantity-number-div" style="display:none;">
-            <label for="quantity_number">Number of Products:</label>
-            <input type="number" name="quantity_number" min="1" placeholder="Enter number of products"><br>
+            <label for="quantity_number">Minimum Quantity of Products:</label>
+            <textarea name="quantity_number" rows="2" placeholder="Enter minimum quantity (at least 251)" required></textarea><br>
         </div>
 
         <label for="message">Message:</label><br>
         <textarea name="message" rows="4" placeholder="Enter your message here..."></textarea><br>
 
-        <div class="g-recaptcha" data-sitekey=""></div>
+        <div class="g-recaptcha" data-sitekey=""></div> <!-- Replace with your site key -->
         <input type="submit" value="Send Inquiry">
     </form>
 </div>
